@@ -1,3 +1,6 @@
+import 'package:blood_donation_sql/Screens/landing.dart';
+import 'package:blood_donation_sql/Screens/register.dart';
+import 'package:blood_donation_sql/Screens/user.dart';
 import 'package:blood_donation_sql/home.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
@@ -10,7 +13,6 @@ void main() async {
   //  options: DefaultFirebaseOptions.currentPlatform,
  );
 
-
  runApp(const MyApp());
 }
 
@@ -22,14 +24,17 @@ class MyApp extends StatelessWidget {
     List<AuthProvider<AuthListener, auth.AuthCredential>>?  providers = [EmailAuthProvider()];
 
     return MaterialApp(
-      initialRoute: auth.FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
+      // theme: ThemeData.light(),
+      // darkTheme: ThemeData.dark(),
+      initialRoute: '/landing',
+      // initialRoute: auth.FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/home',
       routes: {
         '/sign-in': (context) {
           return SignInScreen(
             providers: providers,
             actions: [
               AuthStateChangeAction<SignedIn>((context, state) {
-                Navigator.pushReplacementNamed(context, '/profile');
+                Navigator.pushReplacementNamed(context, '/home');
               }),
             ],
           );
@@ -44,7 +49,10 @@ class MyApp extends StatelessWidget {
             ],
           );
         },
-        '/home':(context) => const Home()
+        '/home':(context) => const Home(),
+        '/register':(context) => const Register(),
+        '/user' : (context) => const UserPage(), 
+        '/landing': (context) => const Landing(),
       },
     );
   }

@@ -14,11 +14,21 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(title: const Text('Blood donation')),
       body: Center(
-        child: ElevatedButton(
-          onPressed: (() {
-            Navigator.pushNamed(context, '/profile');
-          }), 
-        child: const Text('profile')),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: (() {
+                Navigator.pushNamed(context, '/profile');
+              }), 
+            child: const Text('profile')),
+            ElevatedButton(
+              onPressed: (() {
+                Navigator.pushNamed(context, '/register');
+              }), 
+            child: const Text('register')),
+          ],
+        ),
       ),
     );
   }
