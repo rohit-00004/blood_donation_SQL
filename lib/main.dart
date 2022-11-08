@@ -1,3 +1,4 @@
+import 'package:blood_donation_sql/Screens/admin.dart';
 import 'package:blood_donation_sql/Screens/landing.dart';
 import 'package:blood_donation_sql/Screens/register.dart';
 import 'package:blood_donation_sql/Screens/user.dart';
@@ -53,6 +54,7 @@ class MyApp extends StatelessWidget {
         '/register':(context) => const Register(),
         '/user' : (context) => const UserPage(), 
         '/landing': (context) => const Landing(),
+        '/admin':(context) => const AdminPage(),
       },
     );
   }

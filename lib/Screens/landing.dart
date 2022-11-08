@@ -129,7 +129,9 @@ class _LandingState extends State<Landing> {
                             'Login',
                             style: TextStyle(fontSize: 15),
                           ),
-                          onPressed: () => {}
+                          onPressed: () => {
+                            Navigator.pushNamed(context, '/user')
+                          }
                           // Navigator.of(context).push(
                           // MaterialPageRoute(
                           // builder: ((context) => const Login(person: 'user'))))
@@ -140,6 +142,7 @@ class _LandingState extends State<Landing> {
                     child: const Text('Admin login',
                         style: TextStyle(fontSize: 15)),
                     onPressed: () {
+                      Navigator.pushNamed(context, '/admin');
                       // Navigator.of(context).push(MaterialPageRoute(
                       //     builder: ((context) => const Login(person: 'Admin',))));
                     },
