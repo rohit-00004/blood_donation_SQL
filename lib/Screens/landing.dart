@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:blood_donation_sql/db/database_helper.dart';
 import 'package:flutter/material.dart';
 
 class Landing extends StatefulWidget {
@@ -8,6 +11,25 @@ class Landing extends StatefulWidget {
 }
 
 class _LandingState extends State<Landing> {
+
+  int? totNum;
+  @override
+  void initState() {
+    getCountUtility();
+    // TODO: implement initState
+    super.initState();
+  }
+
+  Future getCountUtility() async{
+    int? cnt = await DatabaseHelper.instance.numberOfStudents();
+
+    setState(() {
+    if(cnt == null) totNum = 0;
+    totNum = cnt;
+    });
+    // return cnt;
+  }
+
   @override
   Widget build(BuildContext context) {
     var sz = MediaQuery.of(context).size;
@@ -51,14 +73,21 @@ class _LandingState extends State<Landing> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(20),
-                                  child: Text(
-                                    "Enroll \nYourself",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 24),
+                                Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: InkWell(
+                                    onTap: (){
+                                      Navigator.pushNamed(context, '/sign-in').then((_){
+                                        getCountUtility();
+                                      });
+                                    },
+                                    child: const Text(
+                                      "Enroll \nYourself",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 24),
+                                    ),
                                   ),
                                 ),
                                 ClipRRect(
@@ -86,15 +115,13 @@ class _LandingState extends State<Landing> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Text(
-                                  "Total\nregistrations ",
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 22),
-                                ),
+                              Text(
+                                "Total\nregistrations: $totNum",
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20),
                               ),
                               ClipRRect(
                                   borderRadius: BorderRadius.circular(8.0),
@@ -116,21 +143,19 @@ class _LandingState extends State<Landing> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  SizedBox(height: sz.height*.05,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Already registered?',
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w600),
-                      ),
                       TextButton(
                           child: const Text(
                             'Login',
                             style: TextStyle(fontSize: 15),
                           ),
                           onPressed: () => {
-                            Navigator.pushNamed(context, '/user')
+                            Navigator.pushNamed(context, '/sign-in').then((_){
+                            getCountUtility();
+                          })
                           }
                           // Navigator.of(context).push(
                           // MaterialPageRoute(
@@ -142,11 +167,14 @@ class _LandingState extends State<Landing> {
                     child: const Text('Admin login',
                         style: TextStyle(fontSize: 15)),
                     onPressed: () {
-                      Navigator.pushNamed(context, '/admin');
+                      Navigator.pushNamed(context, '/admin').then((_){
+                            getCountUtility();
+                          });
                       // Navigator.of(context).push(MaterialPageRoute(
                       //     builder: ((context) => const Login(person: 'Admin',))));
                     },
                   ),
+                
                 ],
               )
             ],

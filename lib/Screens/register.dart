@@ -1,7 +1,11 @@
 import 'package:blood_donation_sql/constants.dart';
+import 'package:blood_donation_sql/db/database_helper.dart';
+import 'package:blood_donation_sql/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import '../models/diseases_model.dart';
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -16,10 +20,10 @@ class _RegisterState extends State<Register> {
 
   List<String> bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   String selectedGroup = 'O+';
-  String name = '';
-  int MIS = 0, age = 0, Haemoglobin = 0, Weight = 0;
+  // String name = '';
+
   List<bool> checks = [false, false, false, false, false];
-  String bloodgroup = "";
+  // String bloodgroup = "";
   List<String> diseases = [
     'Unexplained Weight Loss',
     'HIV',
@@ -28,8 +32,19 @@ class _RegisterState extends State<Register> {
     'Syphilis'
   ];
 
+  Student user = Student(
+    name: '', email: '', mis: 0, haemoglobinCount: 0, weight: 0, gender: '',
+    certificateGiven: false, donated: false, bloodGroup: 'O+'
+  );
+  final dbhelper = DatabaseHelper.instance;
+
   // final _auth = FirebaseAuth.instance;
   // User? user;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -62,7 +77,12 @@ class _RegisterState extends State<Register> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       // ignore: sized_box_for_whitespace
-                      child: buildTextform(sz),
+                      child: buildTextform(sz, 'Donor\'s name'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      // ignore: sized_box_for_whitespace
+                      child: buildTextform(sz, 'Email'),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -97,6 +117,13 @@ class _RegisterState extends State<Register> {
                                     right: 15,
                                   ),
                                   child: TextFormField(
+                                    onSaved: (newValue) {
+                                      setState(() {
+                                        if(newValue != null){
+                                          user.gender = newValue.toLowerCase();
+                                        }
+                                      });
+                                    },
                                     validator: ((value) {
                                       if (value == null) {
                                         return 'Enter your gender';
@@ -247,27 +274,52 @@ class _RegisterState extends State<Register> {
                       height: sz.height * 0.055,
                       width: sz.width * .5,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // if (_formKey.currentState!.validate()) {
-                          //   Navigator.pushNamed(context, '/profile');
-                          // }
+                        onPressed: () async{
+                          if (_formKey.currentState!.validate()) {
+                            try{
+                            _formKey.currentState!.save();
+
+                          final res = await dbhelper.createStudent(user);
+
+                          if(res == true){
+                            await dbhelper.allotSlot(user.mis);
+                          }
+                          for(int i=0; i<5; i++){
+                            if(checks[i] == true){
+                              try{
+                              Diseases dis = Diseases(mis: user.mis, disease: diseases[i]);
+                              await dbhelper.createDisease(dis);
+                              }
+                              catch(e){
+                                Fluttertoast.showToast(msg: e.toString(), gravity: ToastGravity.TOP);
+                              }
+                            }
+                          }
+
+                          if(res == true){
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                                content: const Text('User added successfully!', 
-                                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17 ),),
-                                backgroundColor: kGreen,
-                                duration: const Duration(seconds: 2),
-                                // action: SnackBarAction(
-                                //   // label: 'ACTION',
-                                //   onPressed: () { },
-                                // ),
-                              ));
-
-
-                          // signUp(
-                          //     _emailcontroller.text.trim(),
-                          //     _passcontroller.text.trim(),
-                          //     bloodgroup);
+                              content: const Text('User enrolled successfully!', 
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17 ),),
+                              backgroundColor: kGreen,
+                              duration: const Duration(seconds: 2),
+                              // action: SnackBarAction(
+                              //   // label: 'ACTION',
+                              //   onPressed: () { },
+                              // ),
+                            ));
+                          }
+                          else{
+                            Fluttertoast.showToast(msg: 'Could not insert student', gravity: ToastGravity.TOP);
+                          }
+                          
+                            Navigator.pushNamed(context, '/user');
+                          
+                          }
+                          catch(e){
+                            Fluttertoast.showToast(msg: e.toString(), gravity: ToastGravity.TOP);
+                          }
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.redAccent,
@@ -316,6 +368,21 @@ class _RegisterState extends State<Register> {
           right: 15,
         ),
         child: TextFormField(
+          onSaved: (newValue){
+            if(label == 'MIS'){
+              if(newValue != null){
+              setState(() => user.mis = int.parse(newValue),);
+              }
+            }
+            else if(label == 'Haemoglobin count'){
+              if(newValue != null){
+              setState(() => user.haemoglobinCount = int.parse(newValue),);}
+            }
+            else if(label == 'Weight'){
+              if(newValue != null){
+              setState(() => user.weight = double.parse(newValue),);}
+            }
+          },
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
           validator: ((value) {
             if (value == null || value.isEmpty) {
@@ -324,7 +391,9 @@ class _RegisterState extends State<Register> {
 
             if(mis == true && value.length != 9) return 'Enter valid MIS';
 
+        
             if (isNumeric(value) == true && int.tryParse(value)! > 0) return null;
+            
             return 'Enter valid $label';
           }),
           decoration: InputDecoration(
@@ -339,7 +408,7 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  Container buildTextform(Size sz) {
+  Container buildTextform(Size sz, String label) {
     return Container(
       width: sz.width * .8,
 
@@ -353,17 +422,40 @@ class _RegisterState extends State<Register> {
             right: 15,
           ),
           child: TextFormField(
+            onSaved: (newValue) {
+              if(label == 'Email'){
+                setState(() {
+                  if(newValue != null){
+                  user.email = newValue;}
+                });
+              }
+              else{
+                setState(() {
+                  if(newValue != null){
+                  user.name = newValue;}
+                });
+              }
+            },
               validator: (value) {
+             
                 if (value == null || value.isEmpty) {
-                  return 'Name can\'t be empty';
+                  return 'This field can\'t be empty';
+                }
+                if(label == 'Email'){
+                  final bool emailValid = 
+    RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+      .hasMatch(value);
+                  if(emailValid == false){
+                    return 'Invalid email';
+                  }
                 }
                 return null;
               },
               style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                   // : TextStyle(),
                   border: InputBorder.none,
-                  labelText: 'Donor\'s name',
+                  labelText: label,
                   labelStyle: TextStyle(fontSize: 17, letterSpacing: 1.5)))),
       //  child: TextFormField(
       //   ),
@@ -376,7 +468,7 @@ class _RegisterState extends State<Register> {
       onChanged: (newValue) {
         setState(() {
           selectedGroup = newValue.toString();
-          bloodgroup = selectedGroup;
+          user.bloodGroup = selectedGroup;
         });
       },
       iconSize: 40,
