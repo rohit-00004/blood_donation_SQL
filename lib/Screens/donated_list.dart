@@ -88,6 +88,11 @@ class _ListOfDonatedStudentsState extends State<ListOfDonatedStudents> {
                               fontSize: 14,
                               overflow: TextOverflow.ellipsis),
                         ),
+                        // trailing: IconButton(
+                        //   onPressed: () async{
+                        //     await dbhelper.deleteStudent(snapshot.data![index].mis);
+                        //   },
+                        //   icon: const Icon(Icons.delete)),
                       ),
                     );
 

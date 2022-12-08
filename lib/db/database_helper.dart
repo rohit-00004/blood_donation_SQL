@@ -302,6 +302,20 @@ class DatabaseHelper {
     }
   }
 
+  Future<void> readAllotment() async{
+    try {
+      final db = await instance.database;
+
+      final result = await db.rawQuery('SELECT * FROM $tableAllotment');
+
+      print(result);
+      // return result.map((json) => AllotmentDetails.fromJson(json)).toList();
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString(), gravity: ToastGravity.TOP);
+      // return [];
+    }
+  }
+
   
   Future<String> getDoctorForStudent(int bedno) async{
     final db = await instance.database;
@@ -430,18 +444,41 @@ class DatabaseHelper {
     return result.isEmpty == true ? false : true;
   }
 
+  Future<int> getMis(String email) async{
+    final db = await instance.database;
+
+    final result = await db.rawQuery('''
+    SELECT ${Studentfields.mis}
+    FROM $tablestudent
+    WHERE ${Studentfields.email} = ?
+    ''',
+    [email]);
+
+    return int.parse(result[0][Studentfields.mis].toString());
+  }
+
   Future<String> getBednum(String email) async{
     final db = await instance.database;
 
     final result = await db.rawQuery('''
-    SELECT ${Allotmentfields.bedno}
+    SELECT *
     FROM $tableAllotment
-    JOIN $tablestudent 
-    ON $tablestudent.${Allotmentfields.mis} = $tableAllotment.${Allotmentfields.mis}
     '''); 
-
     if(result.isEmpty) return "Not assigned";
-    return result[0][Allotmentfields.bedno].toString();
+
+    int mis = await getMis(email);
+
+    String bednum = "Not alloted";
+    for(int i=0; i<result.length; i++){
+      var list = result[i];
+      for (String key in list.keys){
+        if(key == "mis" && list[key] == mis){
+            bednum = list[Allotmentfields.bedno].toString();
+        }
+      }
+    }
+    return bednum;
+    // return result[0][Allotmentfields.bedno].toString();
   }
 
   Future allotSlot(int mis) async {
@@ -449,11 +486,11 @@ class DatabaseHelper {
     int bed = 0;
     int? nTmp = await numberOfStudents();
     int n = 0;
-
+    print("nTmp = $nTmp");
     if(nTmp != null){
       n = nTmp;
     }
-
+    print("$mis: $n");
     // if(n <= 120){
     hrs = (10 + (n ~/ 60)).toString();
 
@@ -469,11 +506,11 @@ class DatabaseHelper {
       mins += "0";
       mins += tmp;
     }
-
-    if ((n + 1) % 20 == 0) {
+    // as n is already +1, coz allotSlot is done after creating student
+    if ((n ) % 20 == 0) {
       bed = 20;
     } else {
-      bed = ((n + 1) % 20);
+      bed = ((n ) % 20);
     }
 
     String tmp = "";
@@ -482,7 +519,7 @@ class DatabaseHelper {
     tmp += mins;
 
     final db = await instance.database;
-
+    print("mis = $mis, n = $n, bed = $bed, time = $tmp");
     // final json = AllotmentDetails.toJson();
     try {
       await db.rawInsert('''

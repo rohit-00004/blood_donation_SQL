@@ -3,6 +3,7 @@ import 'package:blood_donation_sql/Screens/landing.dart';
 import 'package:blood_donation_sql/Screens/loading.dart';
 import 'package:blood_donation_sql/Screens/register.dart';
 import 'package:blood_donation_sql/Screens/user.dart';
+import 'package:blood_donation_sql/Screens/user_card.dart';
 import 'package:blood_donation_sql/home.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
         '/landing': (context) => const Landing(),
         '/admin':(context) => const AdminPage(),
         '/loading':(context) => const Loader(),
+        // '/card' :(context) => const UserCard(),
         
       },
     );

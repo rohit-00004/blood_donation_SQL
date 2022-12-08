@@ -42,10 +42,23 @@ class _RegisterState extends State<Register> {
   // User? user;
   @override
   void initState() {
+    // checkUserStatus(email);
+    
     // TODO: implement initState
     super.initState();
   }
   final _formKey = GlobalKey<FormState>();
+  bool userPresent = false;
+
+   Future checkUserStatus(String? email) async{
+    bool res = await dbhelper.checkUserPresent(email);
+
+    if(res){
+      setState(() {
+        userPresent = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +76,13 @@ class _RegisterState extends State<Register> {
       backgroundColor: kbg2,
       // backgroundColor: Theme.of(context).colorScheme.secondary,
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: 
+        userPresent == true ?
+        const Center(
+              child: Text('You have already enrolled',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, 
+              fontStyle: FontStyle.italic, color: Colors.grey ),),)
+         : SingleChildScrollView(
           physics: const ScrollPhysics(),
           child: Form(
             key: _formKey,

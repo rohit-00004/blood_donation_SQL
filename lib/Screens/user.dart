@@ -53,9 +53,13 @@ class _UserPageState extends State<UserPage> {
   Future timeAndDateUtility() async{
     if(user == null) return;
 
+    String b = "";
     String t = await dbhelper.getTime(user!.email!);
-    String b = await dbhelper.getBednum(user!.email!);
-    String d = await dbhelper.getDoctorForStudent(int.parse(b));
+    b = await dbhelper.getBednum(user!.email!);
+    String d = "Not assigned";
+    if(b != ""){
+     d = await dbhelper.getDoctorForStudent(int.parse(b));
+    }
     // String d = await dbhelper.getDoctorForStudent(user!.email!);
     setState(() {
       timeAlloted = t;
@@ -303,18 +307,18 @@ class _UserPageState extends State<UserPage> {
             // }, 
             // child: const Text('delete students data')),
             // ElevatedButton(onPressed: () async{
-            // Diseases dis = Diseases(mis: 112003079, disease: 'No disease');
-            // await dbhelper.createDisease(dis);
-            //   // bool status = await dbhelper.checkDonatedStatus(112003079);
-            //   print('disease created');
+            // // Diseases dis = Diseases(mis: 112003079, disease: 'No disease');
+            // // await dbhelper.createDisease(dis);
+            // //   print('disease created');
+            //   await dbhelper.readAllotment();
             // }, 
-            // child: const Text('insert disease')),
+            // child: const Text('read allotment')),
             // ElevatedButton(onPressed: ()async{
-            //    String name =  await dbhelper.getDoctorForStudent(8);
+            //    String bedn =  await dbhelper.getBednum("rohitmagar084@gmail.com");
 
-            //   print("doctor assigned = $name");
+            //   print("bed no = $bedn");
             // }, 
-            // child: const Text('get doctor from bedno')),
+            // child: const Text('get bed no')),
             // ElevatedButton(onPressed: () async{
             //   try{
             //   await dbhelper.showTables();

@@ -1,5 +1,6 @@
 import 'package:blood_donation_sql/Screens/donated_list.dart';
 import 'package:blood_donation_sql/Screens/loading.dart';
+import 'package:blood_donation_sql/Screens/user_card.dart';
 import 'package:blood_donation_sql/constants.dart';
 import 'package:blood_donation_sql/db/database_helper.dart';
 import 'package:blood_donation_sql/models/doctor_model.dart';
@@ -217,6 +218,13 @@ class _ListOfNotDonatedStudentsState extends State<ListOfNotDonatedStudents> {
                     // borderRadius: BorderRadius.circular(50)
                   ),
                   child: ListTile(
+                    onTap: (() {
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => UserCard(name: notDonatedList[index].name, gender: notDonatedList[index].gender, 
+                        weight: notDonatedList[index].weight, hCnt: notDonatedList[index].haemoglobinCount, mis: notDonatedList[index].mis,
+                        bgrp: notDonatedList[index].bloodGroup,)));
+                    }),
                     leading: Container(
                       // radius: ,
                       decoration: BoxDecoration(
